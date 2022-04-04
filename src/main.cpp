@@ -15,13 +15,18 @@ int main(int argc, char** argv) {
         if (!input) {
             throw CompException("Unable to open input file!");
         }
-        std::ofstream output("result/main.cpp");
+        std::ofstream output("result/m.cpp");
         if (!output) {
             throw CompException("Unable to open output file!");
         }
 
         Converter converter(input, output);
         converter.convert(input, output);
+
+        input.close();
+        output.close();
+        system("cd result/ && make");
+        system("cd result/ && make clean");
 
     }
     catch (CompException& exp) {

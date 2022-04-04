@@ -3,17 +3,17 @@ CFLAGS := -Wall -Wextra
 .PHONY: all
 all: program
 
-program: obj/main.o obj/mixed.o
-	g++ obj/main.o obj/mixed.o -o program
+program: obj/m.o obj/mixed.o
+	g++ -std=c++20 obj/m.o obj/mixed.o -o program
 
 obj:
 	mkdir obj
 
-obj/main.o: main.cpp mixed.h | obj
-	g++ -c $(CFLAGS) main.cpp -o obj/main.o
+obj/m.o: m.cpp mixed.h | obj
+	g++ -std=c++20 -c $(CFLAGS) m.cpp -o obj/m.o
 
 obj/mixed.o: mixed.cpp mixed.h | obj
-	g++ -c $(CFLAGS) mixed.cpp -o obj/mixed.o
+	g++ -std=c++20 -c $(CFLAGS) mixed.cpp -o obj/mixed.o
 
 
 .PHONY: clean
