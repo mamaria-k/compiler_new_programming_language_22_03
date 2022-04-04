@@ -57,13 +57,24 @@ void Converter::convert_line(const std::string& input_str, std::ofstream& output
     std::cout << input_str << "\n";     // тестирование
     std::string str = delete_spaces_beg_end(input_str);
     size_t pos_as = str.find('=');
+    size_t pos_in = str.find("input");
     if (str.compare(0, 5, "print") == 0) {
         output << "cout << ";
         convert_exp(str.substr(6, str.size() - 7), output);
         output << R"( << "\n")";
     }
     else if (pos_as != std::string::npos) {
-        convert_left_of_as(str.substr(0, pos_as), output);
+        if (pos_in != std::string::npos) {
+            output << "cout << ";
+            size_t pos_end_in = str.find(')', pos_in);
+            convert_exp(str.substr(pos_in + 6, pos_end_in - pos_in - 6), output);
+            output << " << \"\\n\";\n";
+
+            convert_input(str.substr(0, pos_as), output);
+            output << "\t" << v_for_input;
+        }
+        else
+            convert_left_of_as(str.substr(0, pos_as), output);
         output << " = ";
         convert_exp(str.substr(pos_as + 1, str.size() - pos_as - 1), output);
     }
@@ -71,22 +82,36 @@ void Converter::convert_line(const std::string& input_str, std::ofstream& output
         throw CompException("Incorrect line " + std::to_string(_cur_line) + "!");
 }
 
-void Converter::convert_left_of_as(const std::string& input_str, std::ofstream& output) {
+void Converter::convert_input(const std::string& input_str, std::ofstream& output) {
+    is_input_val = true;
+    output << "\t";
+    std::string str_without_dec = input_str;
+    if (input_str.compare(0, 3, "val") == 0 || input_str.compare(0, 3, "var") == 0) {
+        str_without_dec = convert_left_of_as(input_str, output);
+        output << " = Mixed(\"\");\n";
+    }
+    output << "\tcin >> ";
+    v_for_input = convert_left_of_as(str_without_dec, output);
+    output << ";\n";
+    is_input_val = false;
+}
+
+std::string Converter::convert_left_of_as(const std::string& input_str, std::ofstream& output) {
     std::string str = delete_spaces_beg_end(input_str);
     if (str.compare(0, 3, "val") == 0 || str.compare(0, 3, "var") == 0) {
         std::string new_v = str.substr(4, str.size() - 4);
         if (_vals.count(new_v) == 1 || _vars.count(new_v) == 1)
             throw CompException("Error: variable \"" + new_v + "\" already declared!");
 
-        if (str.compare(0, 3, "val") == 0) {
+        if (str.compare(0, 3, "val") == 0 && !is_input_val) {
             output << "const Mixed " << new_v;
             _vals.emplace(new_v);
         }
-
         else {
             output << "Mixed " << new_v;
             _vars.emplace(new_v);
         }
+        return new_v;
     }
     else {
         if (_vals.count(str) == 1)
@@ -94,6 +119,7 @@ void Converter::convert_left_of_as(const std::string& input_str, std::ofstream& 
         if (_vars.count(str) != 1)
             throw CompException("Variable " + str + " not defined!");
         output << str;
+        return str;
     }
 }
 
@@ -102,8 +128,19 @@ void Converter::convert_exp(const std::string& input_str, std::ofstream& output)
     size_t pos_plus = str.find('+');
     size_t pos_minus = str.find('-');
     if (str.compare(0, 5, "input") == 0) {
-        output << "cin >> ";
-        convert_exp(str.substr(6, str.size() - 7), output);
+        if (pos_plus != std::string::npos) {
+            if (pos_minus != std::string::npos)
+                str.replace(0, std::min(pos_plus, pos_minus) - 1, v_for_input);
+            else
+                str.replace(0, pos_plus - 1, v_for_input);
+        }
+        else {
+            if (pos_minus != std::string::npos)
+                str.replace(0, pos_minus - 1, v_for_input);
+            else
+                str.replace(0, str.size(), v_for_input);
+        }
+        convert_exp(str, output);
     }
     else if (pos_plus != std::string::npos) {
         convert_elem(str.substr(0, pos_plus), output);
@@ -121,6 +158,7 @@ void Converter::convert_exp(const std::string& input_str, std::ofstream& output)
 }
 
 void Converter::convert_elem(const std::string& input_str, std::ofstream& output) {
+    //std::cout << input_str;
     std::string str = delete_spaces_beg_end(input_str);
     int i = str_to_int(str);
     float f = str_to_float(str);
@@ -135,6 +173,8 @@ void Converter::convert_elem(const std::string& input_str, std::ofstream& output
     }
     else throw CompException("Incorrect line " + std::to_string(_cur_line));
 }
+
+
 
 
 

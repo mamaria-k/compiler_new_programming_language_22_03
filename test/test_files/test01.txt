@@ -1,5 +1,2 @@
-var str = "Kk";
-str = str + "7";
-print(str);
 
 

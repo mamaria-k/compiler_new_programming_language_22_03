@@ -20,6 +20,7 @@ public:
     friend Mixed operator+(const Mixed& a, const Mixed& b);
     friend Mixed operator-(const Mixed& a, const Mixed& b);
     friend std::ostream& operator<<(std::ostream& out, const Mixed& a);
+    friend std::istream& operator>>(std::istream& in, Mixed& a);
 
 private:
     int _i = 0;
@@ -30,6 +31,7 @@ private:
 Mixed operator+(const Mixed& a, const Mixed& b);
 Mixed operator-(const Mixed& a, const Mixed& b);
 std::ostream& operator<<(std::ostream& out, const Mixed& a);
+std::istream& operator>>(std::istream& in, Mixed& a);
 
 
 

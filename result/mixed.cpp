@@ -69,4 +69,11 @@ std::ostream& operator<<(std::ostream& out, const Mixed& a) {
     return out;
 }
 
+std::istream& operator>>(std::istream& in, Mixed& a) {
+    std::string str;
+    in >> str;
+    a = Mixed(str);
+    return in;
+}
+
 

@@ -1,5 +1,5 @@
 var str = "Kk";
-str = str + "7";
+str = str + "7" + 6;
 print(str);
 
 
