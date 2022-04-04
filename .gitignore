@@ -3,3 +3,5 @@ cmake-build-debug
 /result/obj/
 /result/program
 /result/m.cpp
+obj/
+converter.out

@@ -18,6 +18,6 @@ obj/mixed.o: mixed.cpp mixed.h | obj
 
 .PHONY: clean
 clean:
-	rm -rf obj result
+	rm -rf obj
 
 
