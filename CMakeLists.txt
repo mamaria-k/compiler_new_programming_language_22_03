@@ -10,5 +10,4 @@ add_executable(compiler_new_programming_language_22_03
         src/exceptions.cpp
         src/converter.cpp
         include/converter.h
-        src/mixed.cpp
-        include/mixed.h)
+        )

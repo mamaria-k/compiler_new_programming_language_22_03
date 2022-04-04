@@ -9,14 +9,13 @@ using std::cin, std::cout, std::cerr, std::endl;
 
 int main(int argc, char** argv) {
     try {
-        if (argc != 3) throw CompException("The input must have two filename: input and output!");
+        if (argc != 2) throw CompException("The input must have one filename: input!");
         std::string input_filename = std::string (argv[1]);
-        std::string output_filename = std::string (argv[2]);
         std::ifstream input(input_filename);
         if (!input) {
             throw CompException("Unable to open input file!");
         }
-        std::ofstream output(output_filename);
+        std::ofstream output("result/main.cpp");
         if (!output) {
             throw CompException("Unable to open output file!");
         }
@@ -24,11 +23,9 @@ int main(int argc, char** argv) {
         Converter converter(input, output);
         converter.convert(input, output);
 
-
-
     }
     catch (CompException& exp) {
-        cerr << exp.what() << endl;
+        cerr << exp.get_message() << endl;
         return 1;
     }
     catch (std::ios::failure& exp) {

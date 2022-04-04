@@ -1,2 +1,5 @@
 cmake-build-debug
 .idea
+/result/obj/
+/result/program
+/result/main.cpp
