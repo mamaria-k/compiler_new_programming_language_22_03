@@ -2,6 +2,7 @@
 #include <array>
 #include <fstream>
 #include "exceptions.h"
+#include "converter.h"
 
 using std::cin, std::cout, std::cerr, std::endl;
 
@@ -11,15 +12,17 @@ int main(int argc, char** argv) {
         if (argc != 3) throw CompException("The input must have two filename: input and output!");
         std::string input_filename = std::string (argv[1]);
         std::string output_filename = std::string (argv[2]);
-        std::ifstream input(input_filename, std::ios::binary);
+        std::ifstream input(input_filename);
         if (!input) {
-            throw CompException("Unable to open elf file!");
+            throw CompException("Unable to open input file!");
         }
         std::ofstream output(output_filename);
         if (!output) {
-            throw CompException("Unable to open file for saving result!");
+            throw CompException("Unable to open output file!");
         }
 
+        Converter converter(input, output);
+        converter.convert(input, output);
 
 
 
@@ -42,3 +45,4 @@ int main(int argc, char** argv) {
     }
     return 0;
 }
+
