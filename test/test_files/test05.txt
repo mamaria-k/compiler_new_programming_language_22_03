@@ -1,5 +1,4 @@
-var str = "Kk";
-str = str + "7";
-print(str);
+var str = "Kk" + 8 - 5.9;
+print("kk" + str);
 
 

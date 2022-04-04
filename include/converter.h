@@ -5,6 +5,8 @@
 #include <variant>
 
 
+// This class implements various conversion functions.
+// They are used in each other when reducing subtasks.
 class Converter {
 public:
     explicit Converter(std::ifstream& input, std::ofstream& output);

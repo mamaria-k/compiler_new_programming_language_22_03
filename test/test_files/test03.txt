@@ -1,4 +1,5 @@
 val s = input("k");
-
+var x = input("9") - 4;
+print(s + " " + x);
 
 

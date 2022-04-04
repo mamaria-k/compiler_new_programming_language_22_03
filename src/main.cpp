@@ -25,8 +25,8 @@ int main(int argc, char** argv) {
 
         input.close();
         output.close();
-//        system("cd result/ && make");
-//        system("cd result/ && make clean");
+        system("cd result/ && make");
+        system("cd result/ && make clean");
 
     }
     catch (CompException& exp) {

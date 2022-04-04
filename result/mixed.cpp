@@ -7,6 +7,10 @@ Mixed::Mixed(std::string  s): type(Mixed::STRING), _s(std::move(s)) {}
 
 Mixed::Mixed(float f): type(Mixed::FLOAT), _f(f) {}
 
+Mixed::Mixed(double d): type(Mixed::FLOAT) {
+    _f = static_cast<float>(d);
+}
+
 Mixed::Mixed(int i): type(Mixed::INT), _i(i) {}
 
 

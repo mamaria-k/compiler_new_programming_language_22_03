@@ -15,6 +15,7 @@ public:
 
     explicit Mixed(std::string  s);
     explicit Mixed(float f);
+    explicit Mixed(double d);
     explicit Mixed(int i);
 
     friend Mixed operator+(const Mixed& a, const Mixed& b);

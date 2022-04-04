@@ -1,5 +1,6 @@
-var str = "Kk";
-str = str + "7";
-print(str);
+val str = "Kk";
+var str = 5;
+val str = str + "7";
+
 
 

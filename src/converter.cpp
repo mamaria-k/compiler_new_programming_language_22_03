@@ -3,6 +3,7 @@
 #include "exceptions.h"
 
 
+// This function removes spaces from the beginning and end of a string.
 static std::string delete_spaces_beg_end(const std::string& str) {
     size_t pos_beg = 0, pos_end = str.size() - 1;
     size_t c = 0;
@@ -17,6 +18,7 @@ static std::string delete_spaces_beg_end(const std::string& str) {
     return str.substr(pos_beg, str.size() - c);
 }
 
+// These two functions check if a string is int ot float.
 static int str_to_int(const std::string& s) {
     size_t found = s.find_first_not_of("1234567890");
     if (found != std::string::npos || s.empty()) return 0;
@@ -29,13 +31,15 @@ static float str_to_float(const std::string& s) {
     return std::stof(s);
 }
 
-
+//This constructor creates a converter and initializes the value of the maximum string length.
 Converter::Converter(std::ifstream& input, std::ofstream& output) {
     input.seekg(0, std::ios::end);
     _input_len = input.tellg();
     input.seekg(0, std::ios::beg);
 }
 
+// This function writes the required environment to the output file
+// and calls the string parser line by line.
 void Converter::convert(std::ifstream& input, std::ofstream& output) {
     output << "#include <iostream>\n#include \"mixed.h\"\n\n";
     output << "using std::cin, std::cout, std::cerr, std::endl;\n\n\n";
@@ -53,17 +57,22 @@ void Converter::convert(std::ifstream& input, std::ofstream& output) {
     output << "\treturn 0;\n" << "}\n";
 }
 
+// This function checks for +, -, input or print in a command.
 void Converter::convert_line(const std::string& input_str, std::ofstream& output) {
-    std::cout << input_str << "\n";     // тестирование
     std::string str = delete_spaces_beg_end(input_str);
     size_t pos_as = str.find('=');
     size_t pos_in = str.find("input");
+    // For print invokes the inner expression parser.
     if (str.compare(0, 5, "print") == 0) {
         output << "cout << ";
         convert_exp(str.substr(6, str.size() - 7), output);
         output << R"( << "\n")";
     }
+    // Parses the left side and the right side for assignment.
     else if (pos_as != std::string::npos) {
+        // If there is an input, it outputs the inner expression of the input
+        // and calls the input handling function.
+        // Then it continues to work with the right side of the assignment.
         if (pos_in != std::string::npos) {
             output << "cout << ";
             size_t pos_end_in = str.find(')', pos_in);
@@ -82,6 +91,8 @@ void Converter::convert_line(const std::string& input_str, std::ofstream& output
         throw CompException("Incorrect line " + std::to_string(_cur_line) + "!");
 }
 
+// This function checks for the existence of a variable, if it does not exist, it creates it, then reads the input into it.
+// Here C++ has problems with constants. We solve them using the field is_input_val.
 void Converter::convert_input(const std::string& input_str, std::ofstream& output) {
     is_input_val = true;
     output << "\t";
@@ -96,6 +107,9 @@ void Converter::convert_input(const std::string& input_str, std::ofstream& outpu
     is_input_val = false;
 }
 
+// This function writes variable declarations, checks for the existence of variables,
+// and redefinitions of constants.
+// The case with input is also handled separately.
 std::string Converter::convert_left_of_as(const std::string& input_str, std::ofstream& output) {
     std::string str = delete_spaces_beg_end(input_str);
     if (str.compare(0, 3, "val") == 0 || str.compare(0, 3, "var") == 0) {
@@ -123,6 +137,10 @@ std::string Converter::convert_left_of_as(const std::string& input_str, std::ofs
     }
 }
 
+// This function converts an expression with +, -, splitting it into parts.
+// In the case when there is an input in the expression (already processed above),
+// it replaces it with the variable itself.
+// These are identical steps.
 void Converter::convert_exp(const std::string& input_str, std::ofstream& output) {
     std::string str = delete_spaces_beg_end(input_str);
     size_t pos_plus = str.find('+');
@@ -148,17 +166,18 @@ void Converter::convert_exp(const std::string& input_str, std::ofstream& output)
         convert_exp(str.substr(pos_plus + 1, str.size() - pos_plus - 1), output);
     }
     else if (pos_minus != std::string::npos) {
-        convert_elem(str.substr(0, pos_plus), output);
+        convert_elem(str.substr(0, pos_minus), output);
         output << " - ";
-        convert_exp(str.substr(pos_plus + 1, str.size() - pos_plus - 1), output);
+        convert_exp(str.substr(pos_minus + 1, str.size() - pos_minus - 1), output);
     }
     else {
         convert_elem(str, output);
     }
 }
 
+// This function converts an expression without +, -.
+// There are cases when it is a string, a number and a variable name.
 void Converter::convert_elem(const std::string& input_str, std::ofstream& output) {
-    //std::cout << input_str;
     std::string str = delete_spaces_beg_end(input_str);
     int i = str_to_int(str);
     float f = str_to_float(str);
@@ -171,11 +190,10 @@ void Converter::convert_elem(const std::string& input_str, std::ofstream& output
             throw CompException("Variable " + str + " not defined!");
         output << str;
     }
-    else throw CompException("Incorrect line " + std::to_string(_cur_line));
+    else {
+        throw CompException("Incorrect line " + std::to_string(_cur_line));
+    }
 }
-
-
-
 
 
 
