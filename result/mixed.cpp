@@ -1,5 +1,7 @@
 #include "mixed.h"
 #include <string>
+// Кажется здесь был потеряна библиотека, по крайней мере без нее у меня падал линкер
+#include <iostream>
 #include <utility>
 
 
@@ -68,6 +70,8 @@ Mixed operator-(const Mixed& a, const Mixed& b) {
 
 std::ostream& operator<<(std::ostream& out, const Mixed& a) {
     if (a.type == Mixed::Type_t::STRING) return out << a._s;
+    // Кажется здесь необязательно было приводить к строке, потоки вывода
+    // могут вывести числа.
     if (a.type == Mixed::Type_t::INT) return out << std::to_string(a._i);
     if (a.type == Mixed::Type_t::FLOAT) return out << std::to_string(a._f);
     return out;

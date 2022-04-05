@@ -38,6 +38,11 @@ Converter::Converter(std::ifstream& input, std::ofstream& output) {
     input.seekg(0, std::ios::beg);
 }
 
+// Эта функция делает два разительно отличающихся действия.
+// По-хорошему этот класс должен вызывать класс фарсера, который отдаст
+// AST, а полученный AST должен быть отдан классу генератора, который
+// бы сгенерировал код.
+
 // This function writes the required environment to the output file
 // and calls the string parser line by line.
 void Converter::convert(std::ifstream& input, std::ofstream& output) {
@@ -56,6 +61,14 @@ void Converter::convert(std::ifstream& input, std::ofstream& output) {
     }
     output << "\treturn 0;\n" << "}\n";
 }
+
+// Проблема этого решения в том, что это фактически хаки,
+// а не полноценный парсинг. Такое решение будет оочень сложно
+// расширить. И опять же смешивается парсинг и генерация кода.
+//
+// Текущее решение определенно будет работать, но ценность любой
+// системы в ее расширяемости, всегда нужно помнить, что систему
+// нужно будет улучшать и расширять.
 
 // This function checks for +, -, input or print in a command.
 void Converter::convert_line(const std::string& input_str, std::ofstream& output) {
@@ -117,6 +130,22 @@ std::string Converter::convert_left_of_as(const std::string& input_str, std::ofs
         if (_vals.count(new_v) == 1 || _vars.count(new_v) == 1)
             throw CompException("Error: variable \"" + new_v + "\" already declared!");
 
+        // Ввиду отсутствия лексического анализа приходиться делать такие хаки
+        // это выглядит довольно плохо. Также нет большого смысла разделять
+        // константы и переменные по разным спискам, лучше было бы создать
+        // структуру с флагом константности.
+        // Так код бы стал чище.
+        //
+        // Вспомогательные функции вида:
+        //    bool is_defined_var(string name)
+        // или
+        //    bool is_defined_const(string name)
+        //
+        // Сделали бы проверки чище:
+        // Не
+        //    "if (_vals.count(str) == 1)"
+        // а
+        //    "if (is_defined_const(str))"
         if (str.compare(0, 3, "val") == 0 && !is_input_val) {
             output << "const Mixed " << new_v;
             _vals.emplace(new_v);
@@ -185,6 +214,11 @@ void Converter::convert_elem(const std::string& input_str, std::ofstream& output
         output << "Mixed(" << str << ")";
     else if (i != 0 || str == "0") output << "Mixed(" << i << ")";
     else if (f != 0 || str == "0") output << "Mixed(" << f << ")";
+    // И снова из-за отсутствия лексического анализа возникают проблема.
+    // Например, вот такое выражение не будет обработано правильно:
+    //    print(" --- a - x --- ");
+    // Output:
+    //    Variable " not defined!
     else if (str.find(' ') == std::string::npos) {
         if (_vars.count(str) != 1 && _vals.count(str) != 1)
             throw CompException("Variable " + str + " not defined!");

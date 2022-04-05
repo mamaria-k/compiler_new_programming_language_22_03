@@ -17,12 +17,18 @@ int main(int argc, char** argv) {
         }
         std::ofstream output("result/m.cpp");
         if (!output) {
+           // Это сообщение может быть очень сбивающим с толку для пользователя.
+           // Он не знает что за файл вывода, так как он передает только файл который нужно
+           // скомпилировать. Лучшим решением здесь было бы создавать его в случае, когда
+           // открыть не получилось.
             throw CompException("Unable to open output file!");
         }
 
         Converter converter(input, output);
         converter.convert(input, output);
 
+        // RAII позволяет не закрывать открытые файлы вручную
+        // https://stackoverflow.com/questions/748014/do-i-need-to-manually-close-an-ifstream
         input.close();
         output.close();
         system("cd result/ && make");
